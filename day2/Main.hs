@@ -1,9 +1,11 @@
 import Text.ParserCombinators.Parsec
+import Data.List.Split
 import Text.ParserCombinators.Parsec.Pos
 import Data.Vector (Vector, (//), (!))
 import qualified Data.Vector as V
 import Data.Either
 import Debug.Trace
+import Data.Maybe
 
 type Position = Int
 data Operation = Add Position Position Position
@@ -47,11 +49,17 @@ parseOperationM input =
     Left err -> fail $ show err
     Right success -> return success
   
-data World = World (Vector Int) Int
+data World = World { getOpcodes :: (Vector Int), getCurrentPos :: Int }
   deriving (Show)
 
 newWorld :: [Int] -> World
 newWorld opcodes = World (V.fromList opcodes) 0
+
+parseWorld :: String -> World
+parseWorld = newWorld . map read . splitOn ","
+
+modifyOpcodes :: (Vector Int -> Vector Int) -> World -> World
+modifyOpcodes f (World opcodes currentPos) = World (f opcodes) currentPos
 
 step :: World -> Maybe World
 step (World opcodes currentPos) =
@@ -64,11 +72,26 @@ step (World opcodes currentPos) =
       Add src1 src2 dest -> Just $ opcodes // [(dest, opcodes ! src1 + opcodes ! src2)]
       Multiply src1 src2 dest -> Just $ opcodes // [(dest, opcodes ! src1 * opcodes ! src2)]
 
+fullySimulate :: World -> World
+fullySimulate world =
+  case step world of
+    Nothing -> world
+    Just world' -> fullySimulate world'
+
 main :: IO ()
 main = do
-  let testInput = [1, 0, 0, 3, 99]
-  let testWorld = newWorld testInput
-  print $ step testWorld
+  input <- readFile "input.txt"
+  let world = parseWorld input
+  let world' = modifyOpcodes (\opcodes -> opcodes // [(1, 12), (2, 2)]) world
+  let world'' = fullySimulate world'
+  print world''
+
+  -- let testInput = [1, 0, 0, 3, 99]
+  -- let testInput = [1,9,10,3,2,3,11,0,99,30,40,50]
+  -- let testWorld = newWorld testInput
+  -- let testWorld = parseWorld "1,1,1,4,99,5,6,0,99"
+  -- print $ fullySimulate testWorld
+  -- print $ step $ fromJust $ step testWorld
   -- let result = parseOperation testInput
   -- print result
   -- let testInput = "1,0,0,3,99"
