@@ -6,9 +6,9 @@
     {
       "label": "test",
       "type": "shell",
-      "command": "runghc Main.hs",
+      "command": "stack runghc Main.hs",
       "options": {
-        "cwd": "${workspaceFolder}/day1"
+        "cwd": "${workspaceFolder}/day2"
       },
       "group": {
         "kind": "test",
