@@ -85,14 +85,3 @@ main = do
   let world' = modifyOpcodes (\opcodes -> opcodes // [(1, 12), (2, 2)]) world
   let world'' = fullySimulate world'
   print world''
-
-  -- let testInput = [1, 0, 0, 3, 99]
-  -- let testInput = [1,9,10,3,2,3,11,0,99,30,40,50]
-  -- let testWorld = newWorld testInput
-  -- let testWorld = parseWorld "1,1,1,4,99,5,6,0,99"
-  -- print $ fullySimulate testWorld
-  -- print $ step $ fromJust $ step testWorld
-  -- let result = parseOperation testInput
-  -- print result
-  -- let testInput = "1,0,0,3,99"
-  -- print $ Add 1 2 3
