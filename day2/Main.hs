@@ -1,5 +1,9 @@
 import Text.ParserCombinators.Parsec
 import Text.ParserCombinators.Parsec.Pos
+import Data.Vector (Vector, (//), (!))
+import qualified Data.Vector as V
+import Data.Either
+import Debug.Trace
 
 type Position = Int
 data Operation = Add Position Position Position
@@ -42,11 +46,30 @@ parseOperationM input =
   case parseOperation input of
     Left err -> fail $ show err
     Right success -> return success
+  
+data World = World (Vector Int) Int
+  deriving (Show)
+
+newWorld :: [Int] -> World
+newWorld opcodes = World (V.fromList opcodes) 0
+
+step :: World -> Maybe World
+step (World opcodes currentPos) =
+  fmap (\x -> World x $ currentPos + 4) newOpcodes
+  where
+    currentOpcodes = V.toList $ V.drop currentPos opcodes
+    currentOp = fromRight undefined $ parseOperation currentOpcodes
+    newOpcodes = case currentOp of
+      End -> Nothing
+      Add src1 src2 dest -> Just $ opcodes // [(dest, opcodes ! src1 + opcodes ! src2)]
+      Multiply src1 src2 dest -> Just $ opcodes // [(dest, opcodes ! src1 * opcodes ! src2)]
 
 main :: IO ()
 main = do
   let testInput = [1, 0, 0, 3, 99]
-  let result = parseOperation testInput
-  print result
+  let testWorld = newWorld testInput
+  print $ step testWorld
+  -- let result = parseOperation testInput
+  -- print result
   -- let testInput = "1,0,0,3,99"
   -- print $ Add 1 2 3
