@@ -1,5 +1,6 @@
 import Text.ParserCombinators.Parsec
 import Data.List.Split
+import Data.List (find)
 import Text.ParserCombinators.Parsec.Pos
 import Data.Vector (Vector, (//), (!))
 import qualified Data.Vector as V
@@ -78,10 +79,17 @@ fullySimulate world =
     Nothing -> world
     Just world' -> fullySimulate world'
 
+cartesian xs ys = [(x,y) | x <- xs, y <- ys]
+
+outputFromNounVerb :: World -> Int -> Int -> Int
+outputFromNounVerb world noun verb = getOpcodes (fullySimulate world') ! 0
+  where world' = modifyOpcodes (\opcodes -> opcodes // [(1, noun), (2, verb)]) world
+
 main :: IO ()
 main = do
   input <- readFile "input.txt"
   let world = parseWorld input
-  let world' = modifyOpcodes (\opcodes -> opcodes // [(1, 12), (2, 2)]) world
-  let world'' = fullySimulate world'
-  print world''
+  let nounVerbs = cartesian [0..99] [0..99]
+  let desiredOutput = 19690720
+  let Just (answerNoun, answerVerb) = find (\(noun, verb) -> outputFromNounVerb world noun verb == desiredOutput) nounVerbs
+  print $ 100 * answerNoun + answerVerb
