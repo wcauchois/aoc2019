@@ -1,0 +1,14 @@
+import Conduit
+
+identityConduit :: (Monad m) => ConduitT a a m ()
+identityConduit = awaitForever yield
+
+passwordGen :: (Monad m) => Int -> ConduitT () String m ()
+passwordGen depth = undefined
+  where helper :: (Monad m) => Int -> Int -> ConduitT [Int] [Int] m ()
+        helper start 0 = identityConduit
+        helper start depth = concatMapC (\xs -> map (:xs) [start..9])
+
+main :: IO ()
+main = do
+  print $ runConduitPure $ passwordGen 2 .| takeC 10 .| sinkList

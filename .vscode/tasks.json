@@ -8,7 +8,7 @@
       "type": "shell",
       "command": "stack runghc Main.hs",
       "options": {
-        "cwd": "${workspaceFolder}/day2"
+        "cwd": "${workspaceFolder}/day4"
       },
       "group": {
         "kind": "test",
